@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [clj-http "3.12.3"]
                  [babashka/fs "0.2.12"]
-                 [criterium "0.4.6"]]
+                 [criterium "0.4.6"]
+                 [org.clojure/core.match "1.0.0"]]
   :repl-options {:init-ns aoc-2022.core})
