@@ -1,11 +1,25 @@
 (ns aoc-2022.one
   (:require [aoc-2022.helper :as h])
-  (:require [criterium.core :as c]))
+  (:require [aoc-2022.util :as u]))
 
-;; poc
-(def input (h/aoc-input 2021 1))
+(def input (h/aoc-input 2022 1))
 
-(defn part-one [_]
-  (map #(* % %) (range 100)))
+(defn- sum-calories [input]
+  (->> input
+       (map u/parse-int)
+       (partition-by nil?)
+       (filter (comp some? first))
+       (map (partial reduce +))))
 
-(c/quick-bench (part-one input))
+(defn part-one [input]
+  (apply max (sum-calories input)))
+
+(defn part-two [input]
+  (->> input
+       (sum-calories)
+       (sort >)
+       (take 3)
+       (reduce +)))
+
+;; (part-one input)
+;; (part-two input)
