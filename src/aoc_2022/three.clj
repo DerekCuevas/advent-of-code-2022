@@ -1,25 +1,25 @@
 (ns aoc-2022.three
-  (:require [aoc-2022.helper :as h]))
+  (:require [aoc-2022.helper :as h])
+  (:require [aoc-2022.util :as u])
+  (:require [clojure.set :as set]))
 
 (def input (h/aoc-input 2022 3))
 
 (defn split [s]
-  (let [mid (/ (count s) 2)]
-    [(subs s 0 mid) (subs s mid)]))
+  (split-at (u/midpoint s) s))
 
 (defn common-char [ss]
-  (first (apply clojure.set/intersection (map set ss))))
+  (first (apply set/intersection (map set ss))))
 
 (defn char-priority [c]
   (let [code (int c)]
-    (cond
-      (<= code 90) (- code 38)
-      :else (- code 96))))
+    (if (<= code 90)
+      (- code 38)
+      (- code 96))))
 
 (defn part-one [input]
   (->> input
-       (map #(common-char (split %)))
-       (map char-priority)
+       (map (comp char-priority common-char split))
        (reduce +)))
 
 ;; (part-one input)
@@ -27,8 +27,7 @@
 (defn part-two [input]
   (->> input
        (partition 3)
-       (map common-char)
-       (map char-priority)
+       (map (comp char-priority common-char))
        (reduce +)))
 
 ;; (part-two input)

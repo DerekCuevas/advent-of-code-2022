@@ -3,6 +3,9 @@
 (defn parse-int [s]
   (try (Integer/parseInt s) (catch Exception _ nil)))
 
+(defn midpoint [coll]
+  (quot (count coll) 2))
+
 ;; https://erikw.me/blog/tech/advent-of-code-tricks/
 
 (defn two-dim-neighbors [[x y]]
