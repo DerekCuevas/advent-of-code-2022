@@ -10,7 +10,7 @@
 (defn- complete-overlap? [[sa ea] [sb eb]]
   (or
    (and (>= sa sb) (<= ea eb))
-   (and (>= ea eb) (<= sa sb))))
+   (and (>= sb sa) (<= eb ea))))
 
 (defn part-one [input]
   (->> input
@@ -19,9 +19,7 @@
        (count)))
 
 (defn- any-overlap? [[sa ea] [sb eb]]
-  (or
-   (and (<= sa sb) (>= ea sb))
-   (and (<= sb sa) (>= eb sa))))
+  (and (<= sa eb) (>= ea sb)))
 
 (defn part-two [input]
   (->> input
