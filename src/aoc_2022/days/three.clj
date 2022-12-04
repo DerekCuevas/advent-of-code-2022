@@ -1,12 +1,9 @@
-(ns aoc-2022.three
+(ns aoc-2022.days.three
   (:require [aoc-2022.helper :as h])
-  (:require [aoc-2022.util :as u])
   (:require [clojure.set :as set]))
 
-(def input (h/aoc-input 2022 3))
-
 (defn split [s]
-  (split-at (u/midpoint s) s))
+  (split-at (h/midpoint s) s))
 
 (defn common-char [ss]
   (first (apply set/intersection (map set ss))))
@@ -22,12 +19,8 @@
        (map (comp char-priority common-char split))
        (reduce +)))
 
-;; (part-one input)
-
 (defn part-two [input]
   (->> input
        (partition 3)
        (map (comp char-priority common-char))
        (reduce +)))
-
-;; (part-two input)

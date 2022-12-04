@@ -8,4 +8,5 @@
                  [babashka/fs "0.2.12"]
                  [criterium "0.4.6"]
                  [org.clojure/core.match "1.0.0"]]
-  :repl-options {:init-ns aoc-2022.core})
+  :repl-options {:init-ns aoc-2022.helper}
+  :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.25.0"]]}})

@@ -1,14 +1,12 @@
-(ns aoc-2022.two
-  (:require [aoc-2022.helper :as h])
-  (:require [clojure.string :as s]))
-
-(def input (h/aoc-input 2022 2))
+(ns aoc-2022.days.two
+  (:require [clojure.string :as s])
+  (:require [clojure.set :as set]))
 
 (def choice->points {:rock 1 :paper 2 :scissors 3})
 
 (def choice->beats {:paper :rock, :scissors :paper, :rock :scissors})
 
-(def choice->looses (clojure.set/map-invert choice->beats))
+(def choice->looses (set/map-invert choice->beats))
 
 (defn- rock-paper-scissors [opponent self]
   (cond
@@ -31,8 +29,6 @@
 (defn part-one [input]
   (play-rounds parse-input-line-part-one input))
 
-;; (part-one input)
-
 (defn- parse-input-line-part-two [s]
   (let [[opponent self] (s/split s #" ")
         opponent-choice ({"A" :rock "B" :paper "C" :scissors} opponent)]
@@ -43,5 +39,3 @@
 
 (defn part-two [input]
   (play-rounds parse-input-line-part-two input))
-
-;; (part-two input)
