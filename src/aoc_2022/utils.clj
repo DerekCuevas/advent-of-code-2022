@@ -10,3 +10,6 @@
   (let [deltas [-1 0 1]]
     (for [dx deltas dy deltas]
       [(+ x dx) (+ y dy)])))
+
+(defn transpose [m]
+  (apply mapv vector m))
