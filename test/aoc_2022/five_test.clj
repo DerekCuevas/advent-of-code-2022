@@ -3,5 +3,5 @@
             [aoc-2022.helper :as h]))
 
 (h/defaoc-test [2022 5]
-  five/part-one 0
+  five/part-one "PTWLTDSJV"
   five/part-two 0)

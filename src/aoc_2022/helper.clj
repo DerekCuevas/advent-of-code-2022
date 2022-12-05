@@ -40,5 +40,6 @@
      ~@(map-indexed
         (fn [index [solve expect]]
           `(t/testing ~(format "part-%d" (inc index))
+             ;; compare zero?
              (t/is (= (~solve (aoc-input ~year ~day)) ~expect))))
         (vec (partition 2 parts)))))
