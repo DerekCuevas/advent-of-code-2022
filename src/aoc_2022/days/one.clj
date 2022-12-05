@@ -1,9 +1,9 @@
 (ns aoc-2022.days.one
-  (:require [aoc-2022.helper :as h]))
+  (:require [aoc-2022.utils :as u]))
 
 (defn- sum-calories [input]
   (->> input
-       (map h/parse-int)
+       (map u/parse-int)
        (partition-by nil?)
        (filter (comp some? first))
        (map (partial reduce +))))

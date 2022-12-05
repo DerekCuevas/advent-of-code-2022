@@ -1,10 +1,10 @@
 (ns aoc-2022.days.four
   (:require [clojure.string :as str])
-  (:require [aoc-2022.helper :as h]))
+  (:require [aoc-2022.utils :as u]))
 
 (defn- parse-input-ranges [s]
   (mapv
-   #(mapv h/parse-int (str/split % #"-"))
+   #(mapv u/parse-int (str/split % #"-"))
    (str/split s #",")))
 
 (defn- complete-overlap? [[sa ea] [sb eb]]
@@ -26,3 +26,5 @@
        (map parse-input-ranges)
        (filter #(apply any-overlap? %))
        (count)))
+
+;; (h/aoc [2022 4] part-one part-two)

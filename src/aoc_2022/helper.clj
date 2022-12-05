@@ -1,7 +1,8 @@
 (ns aoc-2022.helper
-  (:require [clojure.string :as str])
-  (:require [clj-http.client :as client])
-  (:require [babashka.fs :as fs]))
+  (:require [clojure.string :as str]
+            [clojure.test :as t]
+            [clj-http.client :as client]
+            [babashka.fs :as fs]))
 
 (def ^:private base-dir ".aoc")
 
@@ -30,13 +31,14 @@
         (fs/write-lines filepath lines)
         lines))))
 
-(defn parse-int [s]
-  (try (Integer/parseInt s) (catch Exception _ nil)))
+(defn aoc [[year day] & parts]
+  (let [input (aoc-input year day)]
+    (map #(% input) parts)))
 
-(defn midpoint [coll]
-  (quot (count coll) 2))
-
-(defn two-dim-neighbors [[x y]]
-  (let [deltas [-1 0 1]]
-    (for [dx deltas dy deltas]
-      [(+ x dx) (+ y dy)])))
+(defmacro defaoc-test [[year day] & parts]
+  `(t/deftest ~(symbol (format "%d-%d-test" year day))
+     ~@(map-indexed
+        (fn [index [solve expect]]
+          `(t/testing ~(format "part-%d" (inc index))
+             (t/is (= (~solve (aoc-input ~year ~day)) ~expect))))
+        (vec (partition 2 parts)))))
