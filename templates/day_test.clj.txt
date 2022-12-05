@@ -1,8 +1,0 @@
-(ns aoc-2022.{{day-str}}-test
-  (:require [aoc-2022.days.{{day-str}} :as {{day-str}}]
-            [aoc-2022.helper :as h]))
-
-(h/defaoc-test [{{year}} {{day}}]
-  {{day-str}}/part-one 0
-  {{day-str}}/part-two 0)
- 
