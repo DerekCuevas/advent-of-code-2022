@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 5]
   five/part-one "PTWLTDSJV"
-  five/part-two 0)
+  five/part-two "WZMFVGGZP")

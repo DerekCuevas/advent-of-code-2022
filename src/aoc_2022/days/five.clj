@@ -18,7 +18,7 @@
 (defn parse-move-instruction [s]
   (let [[_ & matches] (re-matches #"move (\d+) from (\d+) to (\d+)" s)
         [amount src dest] (mapv u/parse-int matches)]
-    {:amount amount :src src :dest dest}))
+    {:amount amount :src (dec src) :dest (dec dest)}))
 
 (defn parse-input [input]
   (let [[stacks-strs instructions-strs] (split-with seq input)]
@@ -31,7 +31,7 @@
       (update dest #(conj % (first (get stacks src))))))
 
 (defn move [stacks {:keys [amount src dest]}]
-  (reduce (fn [s _] (move-one s (dec src) (dec dest))) stacks (range amount)))
+  (reduce (fn [s _] (move-one s src dest)) stacks (range amount)))
 
 (defn part-one [input]
   (let [{:keys [stacks instructions]} (parse-input input)]
@@ -40,6 +40,16 @@
          (map first)
          (str/join))))
 
-(defn part-two [input] false)
+(defn move-many [stacks {:keys [amount src dest]}]
+  (-> stacks
+      (update src (partial drop amount))
+      (update dest #(concat (take amount (get stacks src)) %))))
+
+(defn part-two [input]
+  (let [{:keys [stacks instructions]} (parse-input input)]
+    (->> instructions
+         (reduce move-many stacks)
+         (map first)
+         (str/join))))
 
 ;; (h/aoc [2022 5] part-one part-two)
