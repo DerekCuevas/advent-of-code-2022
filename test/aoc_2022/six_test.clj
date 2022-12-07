@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 6]
   six/part-one 1802
-  six/part-two 0)
+  six/part-two 3551)
