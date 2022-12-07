@@ -13,3 +13,8 @@
 
 (defn transpose [m]
   (apply mapv vector m))
+
+(defn queue
+  ([] (clojure.lang.PersistentQueue/EMPTY))
+  ([coll]
+   (reduce conj clojure.lang.PersistentQueue/EMPTY coll)))
