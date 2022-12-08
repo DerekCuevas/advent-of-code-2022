@@ -1,11 +1,8 @@
 (ns aoc-2022.days.seven
   (:require [aoc-2022.helper :as h]
             [aoc-2022.utils :as u]
-            [clojure.string :as str]))
-
-(def root-directory "/")
-
-(def parent-directory "..")
+            [clojure.string :as str]
+            [clojure.core.match :as m]))
 
 (defn parse-command [s]
   (let [[_ command arg] (str/split s #" ")]
@@ -27,34 +24,60 @@
 (defn create-directory [name]
   {:name name :files '() :sub-directories {}})
 
+(defn create-file [name size]
+  {:name name :size size})
+
 (defn dir-path [cwd]
   (vec (interleave (repeat (count cwd) :sub-directories) cwd)))
 
-(defn add-file [fs cwd file]
-  (update-in fs (conj (dir-path cwd) :files) #(conj % file)))
+(defn add-file [fs cwd name size]
+  (update-in fs (conj (dir-path cwd) :files) #(conj % (create-file name size))))
 
 (defn add-directory [fs cwd dir-name]
   (update-in fs (conj (dir-path cwd) :sub-directories) #(assoc % dir-name (create-directory dir-name))))
 
-(def mock-fs (create-directory "/"))
-
-(-> mock-fs
-    (add-file [] {:name "foo.txt"})
-    (add-directory [] "pine")
-    (add-file [] {:name "bar.txt"})
-    (add-directory [] "xx")
-    (add-directory ["pine"] "apple")
-    (add-file ["pine" "apple"] {:name "sponge.txt"}))
-
 (defn build-fs [instructions]
-  (let [fs (create-directory root-directory)
-        cwd []]))
+  (reduce
+   (fn [{:keys [fs cwd]} instruction]
+     (m/match instruction
+       {:type :file :size size :name name} {:fs (add-file fs cwd name size) :cwd cwd}
+       {:type :directory :name name} {:fs (add-directory fs cwd name) :cwd cwd}
+       {:type :command :command :cd :argument "/"} {:fs fs :cwd []}
+       {:type :command :command :cd :argument ".."} {:fs fs :cwd (pop cwd)}
+       {:type :command :command :cd :argument dir-name} {:fs fs :cwd (conj cwd dir-name)}
+       :else {:fs fs :cwd cwd}))
+   {:fs (create-directory "/") :cwd []}
+   instructions))
 
 (defn part-one [input]
-  (map parse-input-line input))
+  (->> input
+       (map parse-input-line)
+       (build-fs)))
 
 (defn part-two [input] false)
 
-;; (h/aoc-input 2022 7)
-
 (h/aoc [2022 7] part-one part-two)
+
+;; scratch
+
+(def mock-fs (create-directory "/"))
+
+(-> mock-fs
+    (add-file [] "foo.txt" 0)
+    (add-directory [] "pine")
+    (add-file [] "bar.txt" 10)
+    (add-directory [] "xx")
+    (add-directory ["pine"] "apple")
+    (add-file ["pine" "apple"] "sponge.txt" 34))
+
+(def mock-instructions [{:type :command, :command :cd, :argument "/"}
+                        {:type :command, :command :ls, :argument nil}
+                        {:type :directory, :name "cvt"}
+                        {:type :file, :size 4967, :name "hcqbmwc.gts"}
+                        {:type :file, :size 5512, :name "hsbhwb.clj"}
+                        {:type :directory, :name "hvfvt"}
+                        {:type :directory, :name "phwgv"}
+                        {:type :file, :size 277125, :name "pwgswq.fld"}
+                        {:type :file, :size 42131, :name "qdzr.btl"}])
+
+(build-fs mock-instructions)
