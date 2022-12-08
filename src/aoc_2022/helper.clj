@@ -16,6 +16,9 @@
 (defn- input-file [year day]
   (format "%s/%d/day/%d/input.txt" base-dir year day))
 
+(defn- example-input-file [year day]
+  (format "%s/%d/day/%d/example.txt" base-dir year day))
+
 (defn- fetch-aoc-input [year day]
   (-> (aoc-input-url year day)
       (client/get {:cookies {"session" {:value token}}})
@@ -30,6 +33,11 @@
         (fs/create-dirs (fs/parent filepath))
         (fs/write-lines filepath lines)
         lines))))
+
+(defn aoc-example-input [year day]
+  (let [filepath (example-input-file year day)]
+    (when (fs/exists? filepath)
+      (fs/read-all-lines filepath))))
 
 (defn aoc [[year day] & parts]
   (let [input (aoc-input year day)]

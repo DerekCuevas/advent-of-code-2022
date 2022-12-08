@@ -49,35 +49,41 @@
    {:fs (create-directory "/") :cwd []}
    instructions))
 
+(defn get-directory [fs cwd]
+  (get-in fs (dir-path cwd)))
+
+(defn compute-directory-size
+  ([fs]
+   (compute-directory-size fs [] {}))
+  ([fs cwd dir->size]
+   (let [current-dir (get-directory fs cwd)
+         file-size (reduce + (map :size (get current-dir :files)))
+         {directory-size :size updated-dir->size :dir->size}
+         (reduce
+          (fn [{acc-size :size acc-dir->size :dir->size} dir-name]
+            (let [{cur-size :size cur-dir->size :dir->size}
+                  (compute-directory-size fs (conj cwd dir-name) acc-dir->size)]
+              {:size (+ acc-size cur-size)
+               :dir->size (merge acc-dir->size cur-dir->size)}))
+          {:size 0 :dir->size dir->size}
+          (keys (get current-dir :sub-directories)))
+         total-size (+ file-size directory-size)]
+     {:size total-size
+      :dir->size (assoc updated-dir->size cwd total-size)})))
+
 (defn part-one [input]
   (->> input
        (map parse-input-line)
-       (build-fs)))
+       (build-fs)
+       (:fs)
+       (compute-directory-size)
+       (:dir->size)
+       (vals)
+       (filter #(<= % 100000))
+       (reduce +)))
 
 (defn part-two [input] false)
 
 (h/aoc [2022 7] part-one part-two)
 
-;; scratch
-
-(def mock-fs (create-directory "/"))
-
-(-> mock-fs
-    (add-file [] "foo.txt" 0)
-    (add-directory [] "pine")
-    (add-file [] "bar.txt" 10)
-    (add-directory [] "xx")
-    (add-directory ["pine"] "apple")
-    (add-file ["pine" "apple"] "sponge.txt" 34))
-
-(def mock-instructions [{:type :command, :command :cd, :argument "/"}
-                        {:type :command, :command :ls, :argument nil}
-                        {:type :directory, :name "cvt"}
-                        {:type :file, :size 4967, :name "hcqbmwc.gts"}
-                        {:type :file, :size 5512, :name "hsbhwb.clj"}
-                        {:type :directory, :name "hvfvt"}
-                        {:type :directory, :name "phwgv"}
-                        {:type :file, :size 277125, :name "pwgswq.fld"}
-                        {:type :file, :size 42131, :name "qdzr.btl"}])
-
-(build-fs mock-instructions)
+;; (part-one (h/aoc-example-input 2022 7))
