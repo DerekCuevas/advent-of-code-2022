@@ -69,7 +69,8 @@
           (keys (get current-dir :sub-directories)))
          total-size (+ file-size directory-size)]
      {:size total-size
-      :dir->size (assoc updated-dir->size cwd total-size)})))
+      :dir->size (if (empty? cwd) updated-dir->size
+                     (assoc updated-dir->size cwd total-size))})))
 
 (defn part-one [input]
   (->> input
@@ -82,8 +83,21 @@
        (filter #(<= % 100000))
        (reduce +)))
 
-(defn part-two [input] false)
+(def total-filesystem-size 70000000)
 
-(h/aoc [2022 7] part-one part-two)
+(def space-required 30000000)
 
-;; (part-one (h/aoc-example-input 2022 7))
+(defn part-two [input]
+  (let [{:keys [size dir->size]}
+        (->> input
+             (map parse-input-line)
+             (build-fs)
+             (:fs)
+             (compute-directory-size))
+        unused-space (- total-filesystem-size size)
+        min-size-to-delete (- space-required unused-space)]
+    (->> (vals dir->size)
+         (filter #(>= % min-size-to-delete))
+         (apply min))))
+
+;; (h/aoc [2022 7] part-one part-two)
