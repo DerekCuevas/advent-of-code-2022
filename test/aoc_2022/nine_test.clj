@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 9]
   nine/part-one 6464
-  nine/part-two 0)
+  nine/part-two 2604)

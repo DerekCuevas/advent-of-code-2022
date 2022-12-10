@@ -23,16 +23,18 @@
   (contains? (into #{} (u/all-two-dim-neighbors head)) tail))
 
 (defn move-tail [head tail]
-  (first
-   (set/intersection
-    (set (u/all-two-dim-neighbors tail))
-    (set (u/two-dim-neighbors head)))))
+  (if (or (= head tail) (adjacent? head tail))
+    tail
+    (let [head-neighbors (set (u/two-dim-neighbors head))
+          all-tail-neighbors (set (u/all-two-dim-neighbors tail))
+          all-head-neighbors (set (u/all-two-dim-neighbors head))]
+      (or
+       (first (set/intersection all-tail-neighbors head-neighbors))
+       (first (set/intersection all-tail-neighbors all-head-neighbors))))))
 
 (defn move [[head tail] direction]
   (let [next-head (move-pos direction head)]
-    (if (or (= next-head tail) (adjacent? next-head tail))
-      [next-head tail]
-      [next-head (move-tail next-head tail)])))
+    [next-head (move-tail next-head tail)]))
 
 (defn part-one [input]
   (->> input
@@ -43,6 +45,21 @@
        (into #{})
        (count)))
 
-(defn part-two [input] false)
+(def chain-size 10)
 
-(h/aoc [2022 9] part-one part-two)
+(defn move-chain [[head & chain] direction]
+  (reduce (fn [chain-acc tail]
+            (conj chain-acc (move-tail (last chain-acc) tail)))
+          [(move-pos direction head)]
+          chain))
+
+(defn part-two [input]
+  (->> input
+       (parse-input)
+       (expand-move-instructions)
+       (reductions move-chain (vec (repeat chain-size [0 0])))
+       (map last)
+       (into #{})
+       (count)))
+
+;; (h/aoc [2022 9] part-one part-two)
