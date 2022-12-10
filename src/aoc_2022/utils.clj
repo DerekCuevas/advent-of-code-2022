@@ -51,7 +51,12 @@
    (or (zero? row) (= row (dec width)))
    (or (zero? col) (= col (dec height)))))
 
+;; TODO: rename vars row,col 
 (defn two-dim-neighbors [[x y]]
+  (let [deltas [[0 1] [0 -1] [-1 0] [1 0]]]
+    (mapv (fn [[dx dy]] [(+ x dx) (+ y dy)]) deltas)))
+
+(defn all-two-dim-neighbors [[x y]]
   (let [deltas [-1 0 1]]
     (for [dx deltas dy deltas]
       [(+ x dx) (+ y dy)])))
