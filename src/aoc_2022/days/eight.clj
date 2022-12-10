@@ -29,17 +29,31 @@
 
 (defn part-one [input]
   (let [grid (parse-input input)
-        width (count (nth grid 0))
-        height (count grid)
         maximums (all-surrounding-maximums grid)]
-    (->> (u/grid-coords width height)
+    (->> (u/grid-dims grid)
+         (apply u/grid-coords)
          (filter #(is-visible (get-in grid %) (get-in maximums %)))
          (count))))
 
-(defn part-two [input] false)
+(defn viewing-distance [grid height coords]
+  (inc (count (take-while #(> height (get-in grid %)) (butlast coords)))))
 
-(def example (parse-input (h/aoc-example-input 2022 8)))
+(defn scenic-score [grid coord]
+  (let [[width height] (u/grid-dims grid)
+        tree-height (get-in grid coord)
+        cross-coords [(reverse (u/col-coords-above coord))
+                      (u/col-coords-below height coord)
+                      (reverse (u/row-coords-left coord))
+                      (u/row-coords-right width coord)]]
+    (->> cross-coords
+         (map #(viewing-distance grid tree-height %))
+         (apply *))))
 
-(part-one example)
+(defn part-two [input]
+  (let [grid (parse-input input)]
+    (->> (u/grid-dims grid)
+         (apply u/grid-coords)
+         (map #(scenic-score grid %))
+         (apply max))))
 
 (h/aoc [2022 8] part-one part-two)

@@ -19,12 +19,31 @@
         col (range width)]
     [row col]))
 
+(defn grid-dims [grid]
+  [(count (nth grid 0)) (count grid)])
+
 (defn row-coords [width row]
   (for [col (range width)]
     [row col]))
 
 (defn col-coords [height col]
   (for [row (range height)]
+    [row col]))
+
+(defn row-coords-left [[row col]]
+  (for [col (range col)]
+    [row col]))
+
+(defn row-coords-right [width [row col]]
+  (for [col (range (inc col) width)]
+    [row col]))
+
+(defn col-coords-above [[row col]]
+  (for [row (range row)]
+    [row col]))
+
+(defn col-coords-below [height [row col]]
+  (for [row (range (inc row) height)]
     [row col]))
 
 (defn edge-coord? [width height [row col]]

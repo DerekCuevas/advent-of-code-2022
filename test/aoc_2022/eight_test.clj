@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 8]
   eight/part-one 1798
-  eight/part-two 0)
+  eight/part-two 259308)
