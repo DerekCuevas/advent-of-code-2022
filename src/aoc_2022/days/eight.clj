@@ -5,34 +5,26 @@
 (defn parse-input [input]
   (mapv #(mapv (comp u/parse-int str) %) input))
 
-(defn max-before [xs]
-  (reduce (fn [maxes x]
-            (let [current-max (last maxes)]
-              (conj maxes (if (nil? current-max) x (max x current-max)))))
-          [nil]
-          (butlast xs)))
+(defn gt? [x xs]
+  (every? #(> x %) xs))
 
-(defn max-after [xs]
-  (reverse (max-before (reverse xs))))
+(defn search-coords [width height coord]
+  [(reverse (u/col-coords-above coord))
+   (u/col-coords-below height coord)
+   (reverse (u/row-coords-left coord))
+   (u/row-coords-right width coord)])
 
-(defn all-surrounding-maximums [grid]
-  (let [max-in-rows
-        (fn [g]
-          (mapv #(mapv vector (max-before %) (max-after %)) g))]
-    (mapv #(mapv concat %1 %2)
-          (max-in-rows grid)
-          (u/transpose (max-in-rows (u/transpose grid))))))
-
-(defn is-visible [height surrounding-maximums]
-  (some? (or (some nil? surrounding-maximums)
-             (some #(> height %) surrounding-maximums))))
+(defn visible? [grid width height coord]
+  (->> (search-coords width height coord)
+       (map #(map (partial get-in grid) %))
+       (filter #(gt? (get-in grid coord) %))
+       (seq)))
 
 (defn part-one [input]
   (let [grid (parse-input input)
-        maximums (all-surrounding-maximums grid)]
-    (->> (u/grid-dims grid)
-         (apply u/grid-coords)
-         (filter #(is-visible (get-in grid %) (get-in maximums %)))
+        [width height] (u/grid-dims grid)]
+    (->> (u/grid-coords width height)
+         (filter #(visible? grid width height %))
          (count))))
 
 (defn viewing-distance [grid height coords]
@@ -40,12 +32,8 @@
 
 (defn scenic-score [grid coord]
   (let [[width height] (u/grid-dims grid)
-        tree-height (get-in grid coord)
-        cross-coords [(reverse (u/col-coords-above coord))
-                      (u/col-coords-below height coord)
-                      (reverse (u/row-coords-left coord))
-                      (u/row-coords-right width coord)]]
-    (->> cross-coords
+        tree-height (get-in grid coord)]
+    (->> (search-coords width height coord)
          (map #(viewing-distance grid tree-height %))
          (apply *))))
 
@@ -56,4 +44,4 @@
          (map #(scenic-score grid %))
          (apply max))))
 
-(h/aoc [2022 8] part-one part-two)
+;; (h/aoc [2022 8] part-one part-two)

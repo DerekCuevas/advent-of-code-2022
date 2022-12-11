@@ -20,14 +20,14 @@
   (mapv + pos (get direction->move direction)))
 
 (defn adjacent? [head tail]
-  (contains? (into #{} (u/all-two-dim-neighbors head)) tail))
+  (contains? (set (u/grid-neighbors true head)) tail))
 
 (defn move-tail [head tail]
   (if (or (= head tail) (adjacent? head tail))
     tail
-    (let [head-neighbors (set (u/two-dim-neighbors head))
-          all-tail-neighbors (set (u/all-two-dim-neighbors tail))
-          all-head-neighbors (set (u/all-two-dim-neighbors head))]
+    (let [head-neighbors (set (u/grid-neighbors false head))
+          all-tail-neighbors (set (u/grid-neighbors true tail))
+          all-head-neighbors (set (u/grid-neighbors true head))]
       (or
        (first (set/intersection all-tail-neighbors head-neighbors))
        (first (set/intersection all-tail-neighbors all-head-neighbors))))))
@@ -42,7 +42,7 @@
        (expand-move-instructions)
        (reductions move [[0 0] [0 0]])
        (map second)
-       (into #{})
+       (set)
        (count)))
 
 (def chain-size 10)
@@ -59,7 +59,7 @@
        (expand-move-instructions)
        (reductions move-chain (vec (repeat chain-size [0 0])))
        (map last)
-       (into #{})
+       (set)
        (count)))
 
 ;; (h/aoc [2022 9] part-one part-two)

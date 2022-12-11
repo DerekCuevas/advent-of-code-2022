@@ -13,11 +13,14 @@
 (defn- aoc-input-url [year day]
   (format "%s/%d/day/%d/input" aoc-base-url year day))
 
+(defn- filepath [year day name]
+  (format "%s/%d/day/%d/%s" base-dir year day name))
+
 (defn- input-file [year day]
-  (format "%s/%d/day/%d/input.txt" base-dir year day))
+  (filepath year day "input.txt"))
 
 (defn- example-input-file [year day]
-  (format "%s/%d/day/%d/example.txt" base-dir year day))
+  (filepath year day "example.txt"))
 
 (defn- fetch-aoc-input [year day]
   (-> (aoc-input-url year day)

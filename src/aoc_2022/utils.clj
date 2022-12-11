@@ -25,14 +25,6 @@
 (defn grid-dims [grid]
   [(count (nth grid 0)) (count grid)])
 
-(defn row-coords [width row]
-  (for [col (range width)]
-    [row col]))
-
-(defn col-coords [height col]
-  (for [row (range height)]
-    [row col]))
-
 (defn row-coords-left [[row col]]
   (for [col (range col)]
     [row col]))
@@ -49,17 +41,16 @@
   (for [row (range (inc row) height)]
     [row col]))
 
-(defn edge-coord? [width height [row col]]
-  (or
-   (or (zero? row) (= row (dec width)))
-   (or (zero? col) (= col (dec height)))))
-
-;; TODO: rename vars row,col 
-(defn two-dim-neighbors [[x y]]
+(defn direct-grid-neighbors [[row col]]
   (let [deltas [[0 1] [0 -1] [-1 0] [1 0]]]
-    (mapv (fn [[dx dy]] [(+ x dx) (+ y dy)]) deltas)))
+    (mapv (fn [[drow dcol]] [(+ row drow) (+ col dcol)]) deltas)))
 
-(defn all-two-dim-neighbors [[x y]]
+(defn all-grid-neighbors [[row col]]
   (let [deltas [-1 0 1]]
-    (for [dx deltas dy deltas]
-      [(+ x dx) (+ y dy)])))
+    (for [drow deltas dcol deltas]
+      [(+ row drow) (+ col dcol)])))
+
+(defn grid-neighbors [include-diagonals? coord]
+  (if include-diagonals?
+    (all-grid-neighbors coord)
+    (direct-grid-neighbors coord)))
