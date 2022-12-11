@@ -14,6 +14,9 @@
 (defn transpose [m]
   (apply mapv vector m))
 
+(defn grid [width height init]
+  (vec (repeat height (vec (repeat width init)))))
+
 (defn grid-coords [width height]
   (for [row (range height)
         col (range width)]

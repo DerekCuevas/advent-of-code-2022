@@ -2,7 +2,8 @@
   (:require [aoc-2022.helper :as h]
             [clojure.string :as str]
             [aoc-2022.utils :as u]
-            [clojure.core.match :as m]))
+            [clojure.core.match :as m]
+            [babashka.fs :as fs]))
 
 (defn parse-instruction [s]
   (let [[opcode value] (str/split s #" ")]
@@ -32,6 +33,30 @@
          (map #(apply * %))
          (reduce +))))
 
-(defn part-two [input] false)
+(def crt-width 40)
+(def crt-height 6)
 
-(h/aoc [2022 10] part-one part-two)
+(defn sprite-visible? [col register]
+  (and (>= col (dec register)) (<= col (inc register))))
+
+(defn update-crt [crt [cycle register]]
+  (let [cycle-idx (dec cycle)
+        row (quot cycle-idx crt-width)
+        col (rem cycle-idx crt-width)]
+    (if (sprite-visible? col register)
+      (assoc-in crt [row col] "#")
+      crt)))
+
+(defn render [crt]
+  (fs/write-lines ".aoc/2022/day/10/output.txt" (map str/join crt))
+  crt)
+
+(defn part-two [input]
+  (->> input
+       (map parse-instruction)
+       (cpu)
+       (:history)
+       (reduce update-crt (u/grid crt-width crt-height "."))
+       (render)))
+
+;; (h/aoc [2022 10] part-one part-two)
