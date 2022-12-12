@@ -7,6 +7,7 @@
                  [clj-http "3.12.3"]
                  [babashka/fs "0.2.12"]
                  [criterium "0.4.6"]
-                 [org.clojure/core.match "1.0.0"]]
+                 [org.clojure/core.match "1.0.0"]
+                 [dom-top "1.0.8"]]
   :repl-options {:init-ns aoc-2022.helper}
   :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.25.0"]]}})

@@ -12,6 +12,6 @@ pom.xml.asc
 .hgignore
 .hg/
 .aoc/session.txt
-.clj-kondo
+.clj-kondo/.cache
 .lsp
 .calva

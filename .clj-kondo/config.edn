@@ -1,0 +1,1 @@
+{:hooks {:analyze-call {dom-top.core/loopr hooks.loopr/loopr}}}

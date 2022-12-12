@@ -43,12 +43,47 @@
   (->> input
        (partition-by empty?)
        (filter #(seq (first %)))
-       (map parse-monkey)))
+       (map parse-monkey)
+       (vec)))
 
-(defn part-one [input] false)
+(defn route-monkey-items [{:keys [items operation test]}]
+  (->> items
+       (map #(quot (operation %) 3))
+       (map (fn [item] [((:branches test) ((:condition test) item)) item]))))
+
+(defn play-turn [monkey monkeys]
+  (as-> monkey $
+    (route-monkey-items $)
+    (reduce (fn [mks [id item]] (update-in mks [id :items] #(conj % item))) monkeys $)
+    (assoc-in $ [(:id monkey) :items] [])))
+
+(defn play-round [monkeys]
+  (reduce
+   (fn [{:keys [monkeys totals]} id]
+     (let [monkey (nth monkeys id)]
+       {:monkeys (play-turn monkey monkeys)
+        :totals (update totals id #(+ (count (:items monkey)) (or % 0)))}))
+   {:monkeys monkeys :totals {}}
+   (range (count monkeys))))
+
+(defn play-rounds [num-rounds monkeys]
+  (reduce
+   (fn [{:keys [monkeys totals]} _]
+     (let [{next-monkeys :monkeys round-totals :totals} (play-round monkeys)]
+       {:monkeys next-monkeys :totals (merge-with + totals round-totals)}))
+   {:monkeys monkeys :totals {}}
+   (range num-rounds)))
+
+(defn part-one [input]
+  (->> input
+       (parse-input)
+       (play-rounds 20)
+       (:totals)
+       (vals)
+       (sort)
+       (take-last 2)
+       (apply *)))
 
 (defn part-two [input] false)
 
-(parse-input (h/aoc-example-input 2022 11))
-
-(h/aoc [2022 11] part-one part-two)
+;; (h/aoc [2022 11] part-one part-two)
