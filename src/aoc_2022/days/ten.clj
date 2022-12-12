@@ -48,8 +48,9 @@
       crt)))
 
 (defn render [crt]
-  (fs/write-lines ".aoc/2022/day/10/output.txt" (map str/join crt))
-  crt)
+  (let [formatted (map str/join crt)]
+    (fs/write-lines ".aoc/2022/day/10/output.txt" formatted)
+    formatted))
 
 (defn part-two [input]
   (->> input
