@@ -17,13 +17,16 @@
 (defn grid [width height init]
   (vec (repeat height (vec (repeat width init)))))
 
-(defn grid-coords [width height]
-  (for [row (range height)
-        col (range width)]
-    [row col]))
-
 (defn grid-dims [grid]
   [(count (nth grid 0)) (count grid)])
+
+(defn grid-coords
+  ([grid]
+   (apply grid-coords (grid-dims grid)))
+  ([width height]
+   (for [row (range height)
+         col (range width)]
+     [row col])))
 
 (defn row-coords-left [[row col]]
   (for [col (range col)]
