@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 12]
   twelve/part-one 504
-  twelve/part-two false)
+  twelve/part-two 500)
