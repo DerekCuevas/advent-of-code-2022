@@ -1,5 +1,6 @@
 (ns aoc-2022.days.thirteen
-  (:require [aoc-2022.helper :as h]))
+  (:require [aoc-2022.helper :as h]
+            [clojure.core.match :as m]))
 
 (defn parse-input [input]
   (->> input
@@ -41,6 +42,23 @@
        (map first)
        (reduce +)))
 
-(defn part-two [input] false)
+(defn compare-packets [a b]
+  (m/match (ordered? [a b])
+    nil 0
+    true -1
+    false 1))
+
+(def dividor-packets [[[2]] [[6]]])
+
+(defn part-two [input]
+  (->> input
+       (filter seq)
+       (map read-string)
+       (concat dividor-packets)
+       (sort compare-packets)
+       (map-indexed vector)
+       (filter #(contains? (set dividor-packets) (second %)))
+       (map (comp inc first))
+       (apply *)))
 
 (comment (h/aoc [2022 13] part-one part-two))
