@@ -19,18 +19,17 @@
 (defn shortest-distance [start coord->neighbors end?]
   (loop [seen #{start}
          queue (u/queue [[start 0]])]
-    (let [[current distance] (or (first queue) [nil nil])]
-      (cond
-        (nil? current) nil
-        (end? current) distance
-        :else (let [neighbors
-                    (->> (coord->neighbors current)
-                         (filter #(not (contains? seen %))))]
-                (recur
-                 (apply conj seen neighbors)
-                 (apply conj
-                        (pop queue)
-                        (map #(vector % (inc distance)) neighbors))))))))
+    (when-let [[current distance] (first queue)]
+      (if (end? current)
+        distance
+        (let [neighbors
+              (->> (coord->neighbors current)
+                   (filter #(not (contains? seen %))))]
+          (recur
+           (apply conj seen neighbors)
+           (apply conj
+                  (pop queue)
+                  (map #(vector % (inc distance)) neighbors))))))))
 
 (defn neighbors [grid coord allowed?]
   (->> coord
