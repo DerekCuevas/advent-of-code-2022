@@ -13,7 +13,7 @@ template_vars="{\"year\": $year, \"day\": $day, \"name\": \"$name\"}"
 day_file="./src/aoc_2022/days/${name}.clj"
 day_test_file="./test/aoc_2022/${name}_test.clj"
 
-hbs --data "$template_vars" ./templates/day.clj.hbs --stdout > "$day_file"
-hbs --data "$template_vars" ./templates/day_test.clj.hbs --stdout > "$day_test_file"
+hbs --data "$template_vars" ./scripts/templates/day.clj.hbs --stdout > "$day_file"
+hbs --data "$template_vars" ./scripts/templates/day_test.clj.hbs --stdout > "$day_test_file"
 
 echo "$day_file\n$day_test_file"
