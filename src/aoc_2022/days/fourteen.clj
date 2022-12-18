@@ -32,29 +32,35 @@
   [lookup [col row]]
   (update lookup col (fnil #(conj % row) (sorted-set))))
 
-(defn row-below
+(defn get-row-below
   "Returns row coordinate of closest row below column or nil"
   [lookup [col row]]
   (when-let [rows (get lookup col)]
     (first (subseq rows > row))))
 
+(defn blocked? [lookup coord]
+  (some? (get-in lookup coord)))
+
 (defn drop-sand
   "Returns end coordinate of sand or nil if sand falls into the abyss"
-  [lookup [from-col from-row]]
-  (when-let [floor-row (row-below lookup [from-col from-row])]
-    (let [down-left-coord [(dec from-col) floor-row]
-          down-right-coord [(inc from-col) floor-row]
-          left-blocked? (some? (get-in lookup down-left-coord))
-          right-blocked? (some? (get-in lookup down-right-coord))]
-      (cond
-        (and left-blocked? right-blocked?)
-        [from-col (dec floor-row)]
+  ([lookup from-coord]
+   (drop-sand lookup from-coord nil))
+  ([lookup [from-col from-row] bottom-floor-row]
+   (when-let [floor-row (or (get-row-below lookup [from-col from-row]) bottom-floor-row)]
+     (let [down-left-coord [(dec from-col) floor-row]
+           down-right-coord [(inc from-col) floor-row]
+           bottom? (= floor-row bottom-floor-row)
+           left-blocked? (blocked? lookup down-left-coord)
+           right-blocked? (blocked? lookup down-right-coord)]
+       (cond
+         (or bottom? (and left-blocked? right-blocked?))
+         [from-col (dec floor-row)]
 
-        (not left-blocked?)
-        (recur lookup down-left-coord)
+         (not left-blocked?)
+         (recur lookup down-left-coord bottom-floor-row)
 
-        (not right-blocked?)
-        (recur lookup down-right-coord)))))
+         (not right-blocked?)
+         (recur lookup down-right-coord bottom-floor-row))))))
 
 (defn create-lookup [input]
   (->> input
@@ -72,10 +78,21 @@
         drop-count
         (recur (add-point-to-lookup lookup sand-location) (inc drop-count))))))
 
-(defn part-two [input] false)
+(defn find-floor [lookup]
+  (->> lookup
+       (vals)
+       (apply concat)
+       (apply max)
+       (+ 2)))
 
-(def example-lookup (part-one (h/aoc-example-input 2022 14)))
-
-(comment (part-one (h/aoc-example-input 2022 14)))
+(defn part-two [input]
+  (let [lookup (create-lookup input)
+        bottom-floor (find-floor lookup)]
+    (loop [lookup lookup
+           drop-count 0]
+      (let [sand-location (drop-sand lookup drop-location bottom-floor)]
+        (if (= sand-location drop-location)
+          (inc drop-count)
+          (recur (add-point-to-lookup lookup sand-location) (inc drop-count)))))))
 
 (comment (h/aoc [2022 14] part-one part-two))

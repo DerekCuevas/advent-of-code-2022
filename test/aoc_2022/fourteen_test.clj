@@ -4,4 +4,4 @@
 
 (h/defaoc-test [2022 14]
   fourteen/part-one 825
-  fourteen/part-two false)
+  fourteen/part-two 26729)
