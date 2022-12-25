@@ -13,27 +13,42 @@
 (defn manhattan-distance [[ax ay] [bx by]]
   (+ (abs (- bx ax)) (abs (- by ay))))
 
-(defn surrounding-cols [[col _] length]
-  (conj (mapcat #(list (- col %) (+ col %)) (range 1 (inc length))) col))
-
-(defn no-signal-cols [target-row {:keys [sensor beacon]}]
+(defn signal-out-of-range-on-row [row {:keys [sensor beacon]}]
   (let [[sensor-col sensor-row] sensor
-        [beacon-col beacon-row] beacon
         distance (manhattan-distance sensor beacon)
-        offset (- distance (abs (- target-row sensor-row)))]
+        offset (- distance (abs (- row sensor-row)))]
     (when (>= offset 0)
-      (->> (surrounding-cols [sensor-col target-row] offset)
-           (filter #(not (and (= beacon-row target-row) (= % beacon-col))))))))
+      {:start (- sensor-col offset) :end (+ sensor-col offset)})))
+
+(defn sorted-overlap? [{end-a :end} {start-b :start}]
+  (>= end-a start-b))
+
+(defn merge-overlapping-ranges [{start-a :start end-a :end} {start-b :start end-b :end}]
+  {:start (min start-a start-b) :end (max end-a end-b)})
+
+(defn combine-ranges [ranges]
+  (let [[first & rest] (sort-by :start ranges)]
+    (reduce
+     (fn [combined range]
+       (if (sorted-overlap? (last combined) range)
+         (conj (pop combined) (merge-overlapping-ranges (last combined) range))
+         (conj combined range)))
+     [first] rest)))
+
+(defn range-length [{:keys [start end]}]
+  (- end start))
 
 (def target-row 2000000)
 
+;; need to filter out beacons in target row?
 (defn part-one [input]
   (->> input
        (parse-input)
-       (map #(no-signal-cols target-row %))
+       (map #(signal-out-of-range-on-row target-row %))
        (filter some?)
-       (reduce #(apply conj %1 %2) #{})
-       (count)))
+       (combine-ranges)
+       (map range-length)
+       (reduce +)))
 
 (defn part-two [input] false)
 
