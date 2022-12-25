@@ -10,8 +10,8 @@
 (defn parse-input [input]
   (map parse-line input))
 
-(defn manhattan-distance [[ax ay] [bx by]]
-  (+ (abs (- bx ax)) (abs (- by ay))))
+(defn manhattan-distance [[ac ar] [bc br]]
+  (+ (abs (- bc ac)) (abs (- br ar))))
 
 (defn signal-out-of-range-on-row [row {:keys [sensor beacon]}]
   (let [[sensor-col sensor-row] sensor
@@ -21,7 +21,7 @@
       {:start (- sensor-col offset) :end (+ sensor-col offset)})))
 
 (defn sorted-overlap? [{end-a :end} {start-b :start}]
-  (>= end-a start-b))
+  (>= end-a (dec start-b)))
 
 (defn merge-overlapping-ranges [{start-a :start end-a :end} {start-b :start end-b :end}]
   {:start (min start-a start-b) :end (max end-a end-b)})
@@ -38,18 +38,47 @@
 (defn range-length [{:keys [start end]}]
   (- end start))
 
+(defn ranges-out-of-bounds [row pairs]
+  (->> pairs
+       (map #(signal-out-of-range-on-row row %))
+       (filter some?)
+       (combine-ranges)))
+
 (def target-row 2000000)
 
-;; need to filter out beacons in target row?
 (defn part-one [input]
   (->> input
        (parse-input)
-       (map #(signal-out-of-range-on-row target-row %))
-       (filter some?)
-       (combine-ranges)
+       (ranges-out-of-bounds target-row)
        (map range-length)
        (reduce +)))
 
-(defn part-two [input] false)
+(defn clamp [min-value max-value x]
+  (max min-value (min max-value x)))
+
+(defn clamp-range [min-value max-value {:keys [start end]}]
+  {:start (clamp min-value max-value start) :end (clamp min-value max-value end)})
+
+(def bound 4000000)
+
+(defn tuning-frequency [[col row]]
+  (+ (* col 4000000) row))
+
+(defn into-missing-coord [{:keys [row range]}]
+  [(inc (:end (first range))) row])
+
+(defn part-two [input]
+  (let [pairs (parse-input input)
+        row-range (range 0 (inc bound))]
+    (->> row-range
+         (map (fn [row]
+                {:row row
+                 :range (->> pairs
+                             (ranges-out-of-bounds row)
+                             (map #(clamp-range 0 bound %)))}))
+         (filter #(> (count (:range %)) 1))
+         (first)
+         (into-missing-coord)
+         (tuning-frequency))))
 
 (comment (h/aoc [2022 15] part-one part-two))
