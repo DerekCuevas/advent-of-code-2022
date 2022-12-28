@@ -3,5 +3,5 @@
             [aoc-2022.helper :as h]))
 
 (h/defaoc-test [2022 16]
-  sixteen/part-one false
+  sixteen/part-one 1775
   sixteen/part-two false)
