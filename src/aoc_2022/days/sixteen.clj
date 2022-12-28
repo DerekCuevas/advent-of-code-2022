@@ -19,25 +19,26 @@
 (def open-time 1)
 (def travel-time 1)
 
-(def max-flow-possible
+(def max-flow
   (memoize
-   (fn [lookup budget valve]
-     (let [{:keys [rate connections]} (get lookup valve)]
-       (cond
-         (= budget 0) 0
-         (= budget open-time) rate
-         :else
-         (let [cost (if (zero? rate) travel-time (+ open-time travel-time))
-               remaining-budget (- budget cost)
-               connections-max-flow-possible (map #(max-flow-possible lookup remaining-budget %) connections)]
-           (+ (* rate (- budget open-time)) (apply max connections-max-flow-possible))))))))
+   (fn [network valve open-valves budget]
+     (let [{:keys [rate connections]} (get network valve)]
+       (if (<= budget 0)
+         {:max-flow 0 :open-valves open-valves}
+         (let [[time-cost valve-flow next-open-valves]
+               (if (or (contains? open-valves valve) (zero? rate))
+                 [travel-time 0 open-valves]
+                 [(+ open-time travel-time) (* rate (- budget open-time)) (conj open-valves valve)])
+               connections-max-flow (map #(max-flow network % next-open-valves (- budget time-cost)) connections)]
+           (-> (apply (partial max-key :max-flow) connections-max-flow)
+               (update :max-flow #(+ valve-flow %)))))))))
 
 (defn part-one [input] false)
 
 (defn part-two [input] false)
 
-(def example-lookup (parse-input (h/aoc-example-input 2022 16)))
+(def example-network (parse-input (h/aoc-example-input 2022 16)))
 
-(max-flow-possible example-lookup initial-budget "AA")
+(comment (max-flow example-network "AA" #{} initial-budget))
 
 (comment (h/aoc [2022 16] part-one part-two))
