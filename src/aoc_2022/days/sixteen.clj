@@ -28,6 +28,7 @@
         (if (< budget open-time)
           {:flow 0 :open open-valves}
           (let [[time-cost valve-flow next-open-valves]
+                ;; FIXME: opening may not produce optimal max even if not open and not zero
                 (if (or (contains? open-valves valve) (zero? rate))
                   [travel-time 0 open-valves]
                   [(+ open-time travel-time) (* rate (- budget open-time)) (conj open-valves valve)])]
@@ -47,8 +48,8 @@
 
 (defn part-two [input] false)
 
-(def example-network (parse-input (h/aoc-example-input 2022 16)))
+;; https://www.reddit.com/r/adventofcode/comments/znklnh/2022_day_16_some_extra_test_cases_for_day_16/
 
-(comment (max-flow example-network "AA" initial-budget))
+(comment (max-flow (parse-input (h/aoc-example-input 2022 16)) "AA" initial-budget))
 
 (comment (h/aoc [2022 16] part-one part-two))
