@@ -35,7 +35,7 @@
 (defn move-shape-by [shape [dr dc]]
   (map (fn [[r c]] [(+ r dr) (+ c dc)]) shape))
 
-(def direction->move {:up [1 0] :down [-1 0] :left [0 -1] :right [0 1]})
+(def direction->move {:down [-1 0] :left [0 -1] :right [0 1]})
 
 (defn add-coord-to-lookup
   ([coord]
@@ -47,15 +47,11 @@
   (reduce add-coord-to-lookup lookup shape))
 
 (defn top-row [lookup]
-  (when-let [reversed-lookup (rseq lookup)]
-    (first reversed-lookup)))
-
-(defn wall-collision? [[_ col] min-col max-col]
-  (not (< (dec min-col) col max-col)))
+  (first (rseq lookup)))
 
 (defn collision? [lookup shape]
-  (some #(or (wall-collision? % 0 tunnel-width)
-             (some? (get-in lookup %))) shape))
+  (some #(or (some? (get-in lookup %))
+             (not (< (dec 0) (second %) tunnel-width))) shape))
 
 (defn move-shape-in-direction [lookup shape direction]
   (let [moved-shape (move-shape-by shape (direction->move direction))]
@@ -83,14 +79,14 @@
         {:lookup (add-shape-to-lookup lookup shape) :count (inc move-count)}
         (recur (inc move-count) shape)))))
 
-(defn add-floor [lookup]
+(defn create-lookup []
   (->> (range 0 tunnel-width)
        (map #(vector 0 %))
-       (reduce add-coord-to-lookup lookup)))
+       (reduce add-coord-to-lookup (sorted-map))))
 
 (defn part-one [input]
   (let [wind-directions (parse-input input)
-        lookup (add-floor (sorted-map))]
+        lookup (create-lookup)]
     (->> (cycle shapes)
          (take drop-count)
          (reduce (fn [{:keys [lookup count]} shape]
